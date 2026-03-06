@@ -1,0 +1,11 @@
+torch>=2.0.0
+torchvision>=0.15.0
+flwr[simulation]>=1.4.0
+opacus>=1.4.0
+numpy
+matplotlib
+scikit-learn
+pyyaml
+cryptography
+tqdm
+medmnist # For easy access to medical datasets

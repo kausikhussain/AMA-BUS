@@ -1,0 +1,22 @@
+experiment:
+  name: "sample_run"
+  rounds: 2
+  num_clients: 2 
+  fraction_fit: 1.0
+  dataset: "pneumoniamnist"
+
+training:
+  batch_size: 16
+  learning_rate: 0.01
+  epochs: 1  # Reduced for speed
+  device: "cpu"
+
+privacy:
+  enabled: true
+  target_epsilon: 50.0 # High epsilon to ensure it doesn't fail due to tight budget in short run
+  target_delta: 1e-5
+  max_grad_norm: 1.0
+  noise_multiplier: 0.1
+
+model:
+  architecture: "cnn"

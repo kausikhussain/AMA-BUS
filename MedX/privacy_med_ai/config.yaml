@@ -1,0 +1,22 @@
+experiment:
+  name: "federated_dp_medical_imaging"
+  rounds: 5
+  num_clients: 2  # Number of clients to simulate 
+  fraction_fit: 1.0  # Fraction of clients used for training
+  dataset: "pneumoniamnist" # or "retinopathy" (simulated)
+
+training:
+  batch_size: 32
+  learning_rate: 0.01
+  epochs: 3  # Increased for better local learning
+  device: "cpu" # or "cuda"
+
+privacy:
+  enabled: true
+  target_epsilon: 10.0
+  target_delta: 1e-5
+  max_grad_norm: 1.0
+  noise_multiplier: 1.0 # Will be adjusted by privacy engine based on target_epsilon if strict handling is implemented
+
+model:
+  architecture: "cnn" # simple_cnn or resnet18
