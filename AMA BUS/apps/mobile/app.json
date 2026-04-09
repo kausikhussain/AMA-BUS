@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "AmaRide",
+    "slug": "amaride",
+    "scheme": "amaride",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#0f172a"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-location"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

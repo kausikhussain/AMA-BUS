@@ -1,0 +1,25 @@
+{
+  "name": "amaride-platform",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @amaride/api",
+    "dev:web": "npm run dev -w @amaride/web",
+    "dev:mobile": "npm run dev -w @amaride/mobile",
+    "build": "npm run build -ws --if-present",
+    "lint": "npm run lint -ws --if-present",
+    "db:generate": "npm run db:generate -w @amaride/api",
+    "db:migrate": "npm run db:migrate -w @amaride/api",
+    "db:seed": "npm run db:seed -w @amaride/api",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  phone         String?
+  role          String         @default("PASSENGER")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  tickets       Ticket[]
+  driverTrips   Trip[]         @relation("DriverTrips")
+  notifications Notification[]
+  assignedBuses Bus[]          @relation("AssignedDriver")
+  authoredLogs  SystemLog[]    @relation("ActorLogs")
+}
+
+model BusStop {
+  id                String      @id @default(cuid())
+  name              String
+  latitude          Float
+  longitude         Float
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  routeStops        RouteStop[]
+  originRoutes      BusRoute[]  @relation("StartStopRelation")
+  destinationRoutes BusRoute[]  @relation("EndStopRelation")
+}
+
+model BusRoute {
+  id          String      @id @default(cuid())
+  routeName   String
+  busNumber   String      @unique
+  color       String
+  baseFare    Float
+  distanceKm  Float
+  path        String
+  startStopId String
+  endStopId   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  startStop   BusStop     @relation("StartStopRelation", fields: [startStopId], references: [id])
+  endStop     BusStop     @relation("EndStopRelation", fields: [endStopId], references: [id])
+  routeStops  RouteStop[]
+  buses       Bus[]
+  trips       Trip[]
+  tickets     Ticket[]
+}
+
+model RouteStop {
+  id                  String   @id @default(cuid())
+  routeId             String
+  stopId              String
+  sequence            Int
+  distanceFromStartKm Float
+  route               BusRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stop                BusStop  @relation(fields: [stopId], references: [id], onDelete: Cascade)
+
+  @@unique([routeId, stopId])
+  @@unique([routeId, sequence])
+}
+
+model Bus {
+  id         String    @id @default(cuid())
+  fleetCode  String    @unique
+  routeId    String
+  driverId   String?
+  status     String @default("IDLE")
+  capacity   Int       @default(40)
+  currentLat Float?
+  currentLng Float?
+  heading    Float?
+  occupancy  Int       @default(0)
+  updatedAt  DateTime  @updatedAt
+  route      BusRoute  @relation(fields: [routeId], references: [id])
+  driver     User?     @relation("AssignedDriver", fields: [driverId], references: [id])
+  trips      Trip[]
+}
+
+model Trip {
+  id                String        @id @default(cuid())
+  busId             String
+  driverId          String
+  routeId           String
+  status            String    @default("SCHEDULED")
+  startedAt         DateTime      @default(now())
+  endedAt           DateTime?
+  currentLat        Float?
+  currentLng        Float?
+  occupancySnapshot Int           @default(0)
+  lastBroadcastAt   DateTime?
+  bus               Bus           @relation(fields: [busId], references: [id])
+  driver            User          @relation("DriverTrips", fields: [driverId], references: [id])
+  route             BusRoute      @relation(fields: [routeId], references: [id])
+  locationPings     LocationPing[]
+  tickets           Ticket[]
+
+  @@index([driverId, status])
+}
+
+model LocationPing {
+  id        String   @id @default(cuid())
+  tripId    String
+  latitude  Float
+  longitude Float
+  speed     Float?
+  heading   Float?
+  occupancy Int?
+  createdAt DateTime @default(now())
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+model Ticket {
+  id                    String        @id @default(cuid())
+  userId                String
+  routeId               String
+  tripId                String?
+  qrCode                String
+  fare                  Float
+  passengerCount        Int
+  paymentStatus         String @default("PENDING")
+  stripePaymentIntentId String?
+  expiresAt             DateTime
+  usedAt                DateTime?
+  createdAt             DateTime      @default(now())
+  user                  User          @relation(fields: [userId], references: [id])
+  route                 BusRoute      @relation(fields: [routeId], references: [id])
+  trip                  Trip?         @relation(fields: [tripId], references: [id])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  level     String
+  action    String
+  message   String
+  metadata  String?
+  createdAt DateTime @default(now())
+  actor     User?    @relation("ActorLogs", fields: [actorId], references: [id])
+}
